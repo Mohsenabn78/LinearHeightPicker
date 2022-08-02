@@ -5,7 +5,6 @@ import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.Rect
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Canvas
@@ -138,8 +137,8 @@ fun PickerScreen(pickerStyle: PickerStyle, onHeightChange: (Int) -> Unit = {}) {
                 ) { change, _ ->
                     val newDistance = oldDragPoint + (change.position.x - startDragPoint)
                     targetDistantPoint = newDistance.coerceIn(
-                        minimumValue = ((pickerStyle.initialHeight ) * pickerStyle.spaceInterval - pickerStyle.maxHeight * pickerStyle.spaceInterval).toFloat(),
-                        maximumValue = ((pickerStyle.initialHeight ) * pickerStyle.spaceInterval - pickerStyle.minHeight * pickerStyle.spaceInterval).toFloat()
+                        minimumValue = ((pickerStyle.initialHeight) * pickerStyle.spaceInterval - pickerStyle.maxHeight * pickerStyle.spaceInterval).toFloat(),
+                        maximumValue = ((pickerStyle.initialHeight) * pickerStyle.spaceInterval - pickerStyle.minHeight * pickerStyle.spaceInterval).toFloat()
                     )
                 }
             }
@@ -208,20 +207,21 @@ fun PickerScreen(pickerStyle: PickerStyle, onHeightChange: (Int) -> Unit = {}) {
                         DegreeLineType.FiveTypeLine -> pickerStyle.fiveTypeLineHeight
                         else -> pickerStyle.normalTypeLineHeight
                     }
-                    Log.e("TAG", "PickerScreen: ${pickerStyle.spaceInterval * (height - pickerStyle.initialHeight.toFloat()) + targetDistantPoint}  ${height}" )
-                    this.drawLine(pickerStyle.spaceInterval * (height - pickerStyle.initialHeight.toFloat()) + targetDistantPoint,
+
+                    this.drawLine((constraints.maxWidth / 2 + (pickerStyle.spaceInterval * (height - pickerStyle.initialHeight.toFloat()) + targetDistantPoint)),
                         (constraints.maxHeight / 2) - pickerStyle.pickerWidth.toPx() / 2 + 4,
-                        pickerStyle.spaceInterval * (height - pickerStyle.initialHeight.toFloat()) + targetDistantPoint,
+                        (constraints.maxWidth / 2 + (pickerStyle.spaceInterval * (height - pickerStyle.initialHeight.toFloat()) + targetDistantPoint)),
                         (constraints.maxHeight / 2) - pickerStyle.pickerWidth.toPx() / 2 + lineHeightSize * 2,
                         Paint().apply {
                             this.style = Paint.Style.STROKE
-                            this.strokeWidth = 4f
+                            this.strokeWidth = 6f
                             this.color = lineColor
                             this.isAntiAlias = true
                         }
                     )
 
-                    if (abs(constraints.maxWidth / 2 - (pickerStyle.spaceInterval * (height - pickerStyle.initialHeight.toFloat()) + targetDistantPoint).roundToInt()) < 12) {
+
+                    if (abs(constraints.maxWidth / 2 - (constraints.maxWidth / 2 + (pickerStyle.spaceInterval * (height - pickerStyle.initialHeight.toFloat()) + targetDistantPoint)).roundToInt()) < 5) {
                         selectedHeight = height
                         onHeightChange(selectedHeight)
                     }
@@ -237,7 +237,7 @@ fun PickerScreen(pickerStyle: PickerStyle, onHeightChange: (Int) -> Unit = {}) {
 
                         drawText(
                             abs(height).toString(),
-                            pickerStyle.spaceInterval * (height - pickerStyle.initialHeight.toFloat()) - textBound.width() / 2 + targetDistantPoint,
+                            (constraints.maxWidth / 2 + (pickerStyle.spaceInterval * (height - pickerStyle.initialHeight.toFloat()) + targetDistantPoint)) - textBound.width() / 2,
                             (constraints.maxHeight / 2) - pickerStyle.pickerWidth.toPx() / 2 + lineHeightSize * 2 + textBound.height() * 2 + pickerStyle.numberPadding,
                             Paint().apply {
                                 this.textSize = 20.sp.toPx()
