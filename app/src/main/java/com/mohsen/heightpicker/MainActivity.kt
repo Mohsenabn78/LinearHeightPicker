@@ -5,6 +5,7 @@ import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.Rect
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Canvas
@@ -115,7 +116,7 @@ fun PickerScreen(pickerStyle: PickerStyle, onHeightChange: (Int) -> Unit = {}) {
     }
 
     var selectedHeight by remember {
-        mutableStateOf(pickerStyle.initialHeight)
+        mutableStateOf(0)
     }
 
     BoxWithConstraints(
@@ -137,8 +138,8 @@ fun PickerScreen(pickerStyle: PickerStyle, onHeightChange: (Int) -> Unit = {}) {
                 ) { change, _ ->
                     val newDistance = oldDragPoint + (change.position.x - startDragPoint)
                     targetDistantPoint = newDistance.coerceIn(
-                        minimumValue = ((pickerStyle.initialHeight + 15) * pickerStyle.spaceInterval - pickerStyle.maxHeight * pickerStyle.spaceInterval).toFloat(),
-                        maximumValue = ((pickerStyle.initialHeight + 15) * pickerStyle.spaceInterval - pickerStyle.minHeight * pickerStyle.spaceInterval).toFloat()
+                        minimumValue = ((pickerStyle.initialHeight ) * pickerStyle.spaceInterval - pickerStyle.maxHeight * pickerStyle.spaceInterval).toFloat(),
+                        maximumValue = ((pickerStyle.initialHeight ) * pickerStyle.spaceInterval - pickerStyle.minHeight * pickerStyle.spaceInterval).toFloat()
                     )
                 }
             }
@@ -207,7 +208,7 @@ fun PickerScreen(pickerStyle: PickerStyle, onHeightChange: (Int) -> Unit = {}) {
                         DegreeLineType.FiveTypeLine -> pickerStyle.fiveTypeLineHeight
                         else -> pickerStyle.normalTypeLineHeight
                     }
-
+                    Log.e("TAG", "PickerScreen: ${pickerStyle.spaceInterval * (height - pickerStyle.initialHeight.toFloat()) + targetDistantPoint}  ${height}" )
                     this.drawLine(pickerStyle.spaceInterval * (height - pickerStyle.initialHeight.toFloat()) + targetDistantPoint,
                         (constraints.maxHeight / 2) - pickerStyle.pickerWidth.toPx() / 2 + 4,
                         pickerStyle.spaceInterval * (height - pickerStyle.initialHeight.toFloat()) + targetDistantPoint,
