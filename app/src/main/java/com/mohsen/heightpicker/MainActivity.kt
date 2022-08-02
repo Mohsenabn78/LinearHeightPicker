@@ -14,6 +14,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontStyle
@@ -102,7 +103,7 @@ fun SelectHeightScreen(targetHeight: Int) {
 @Composable
 fun PickerScreen(pickerStyle: PickerStyle, onHeightChange: (Int) -> Unit = {}) {
 
-    var targetDistantPoint by remember {
+    var targetDistant by remember {
         mutableStateOf(0f)
     }
 
@@ -132,51 +133,42 @@ fun PickerScreen(pickerStyle: PickerStyle, onHeightChange: (Int) -> Unit = {}) {
                         startDragPoint = it.x
                     },
                     onDragEnd = {
-                        oldDragPoint = targetDistantPoint
+                        oldDragPoint = targetDistant
                     }
                 ) { change, _ ->
                     val newDistance = oldDragPoint + (change.position.x - startDragPoint)
-                    targetDistantPoint = newDistance.coerceIn(
+                    targetDistant = newDistance.coerceIn(
                         minimumValue = ((pickerStyle.initialHeight) * pickerStyle.spaceInterval - pickerStyle.maxHeight * pickerStyle.spaceInterval).toFloat(),
                         maximumValue = ((pickerStyle.initialHeight) * pickerStyle.spaceInterval - pickerStyle.minHeight * pickerStyle.spaceInterval).toFloat()
                     )
                 }
             }
         ) {
+
+            val middlePoint = Offset(x = maxWidth.toPx() / 2f, y = maxHeight.toPx() / 2f)
+
             drawContext.canvas.nativeCanvas.apply {
                 val pickerLinesPath = Path().apply {
-                    moveTo(0f, (constraints.maxHeight / 2) - pickerStyle.pickerWidth.toPx() / 2)
-                    lineTo(
-                        constraints.maxWidth.toFloat(),
-                        (constraints.maxHeight / 2) - pickerStyle.pickerWidth.toPx() / 2
-                    )
-                    moveTo(0f, (constraints.maxHeight / 2) + pickerStyle.pickerWidth.toPx() / 2)
-                    lineTo(
-                        constraints.maxWidth.toFloat(),
-                        (constraints.maxHeight / 2) + pickerStyle.pickerWidth.toPx() / 2
-                    )
+                    moveTo(0f, middlePoint.y - pickerStyle.pickerWidth.toPx() / 2)
+                    lineTo(constraints.maxWidth.toFloat(), middlePoint.y - pickerStyle.pickerWidth.toPx() / 2)
+                    moveTo(0f, middlePoint.y + pickerStyle.pickerWidth.toPx() / 2)
+                    lineTo(constraints.maxWidth.toFloat(), middlePoint.y + pickerStyle.pickerWidth.toPx() / 2)
                 }
 
 
                 drawPath(pickerLinesPath, Paint().apply {
                     this.style = Paint.Style.STROKE
-                    this.strokeWidth = 6f
+                    this.strokeWidth = pickerStyle.lineStroke
                     this.color = Color.BLACK
                     this.setShadowLayer(86f, 0f, 0f, Color.LTGRAY)
                 })
 
 
                 val indicator = Path().apply {
-                    moveTo((constraints.maxWidth / 2).toFloat(), (constraints.maxHeight / 2 + 10f))
-                    lineTo(
-                        (constraints.maxWidth / 2 - 2f),
-                        (constraints.maxHeight / 2) + pickerStyle.pickerWidth.toPx() / 2
-                    )
-                    moveTo((constraints.maxWidth / 2).toFloat(), (constraints.maxHeight / 2 + 10f))
-                    lineTo(
-                        (constraints.maxWidth / 2 + 2f),
-                        (constraints.maxHeight / 2) + pickerStyle.pickerWidth.toPx() / 2
-                    )
+                    moveTo(middlePoint.x, (middlePoint.y + 10f))
+                    lineTo((middlePoint.x - 2f), middlePoint.y + pickerStyle.pickerWidth.toPx() / 2)
+                    moveTo(middlePoint.x, (middlePoint.y + 10f))
+                    lineTo((middlePoint.x + 2f), middlePoint.y + pickerStyle.pickerWidth.toPx() / 2)
                     fillType = Path.FillType.EVEN_ODD
                 }
 
@@ -184,12 +176,14 @@ fun PickerScreen(pickerStyle: PickerStyle, onHeightChange: (Int) -> Unit = {}) {
                 drawPath(indicator, Paint().apply {
                     this.color = Color.RED
                     this.style = Paint.Style.FILL_AND_STROKE
-                    this.strokeWidth = 6f
+                    this.strokeWidth = pickerStyle.lineStroke
                     this.isAntiAlias = true
                 })
 
 
                 for (height in pickerStyle.minHeight..pickerStyle.maxHeight) {
+                    val degreeLineScaleX =
+                        middlePoint.x + (pickerStyle.spaceInterval * (height - pickerStyle.initialHeight.toFloat()) + targetDistant)
                     val lineType = when {
                         height % 10 == 0 -> DegreeLineType.TenTypeLine
                         height % 5 == 0 -> DegreeLineType.FiveTypeLine
@@ -208,20 +202,20 @@ fun PickerScreen(pickerStyle: PickerStyle, onHeightChange: (Int) -> Unit = {}) {
                         else -> pickerStyle.normalTypeLineHeight
                     }
 
-                    this.drawLine((constraints.maxWidth / 2 + (pickerStyle.spaceInterval * (height - pickerStyle.initialHeight.toFloat()) + targetDistantPoint)),
-                        (constraints.maxHeight / 2) - pickerStyle.pickerWidth.toPx() / 2 + 4,
-                        (constraints.maxWidth / 2 + (pickerStyle.spaceInterval * (height - pickerStyle.initialHeight.toFloat()) + targetDistantPoint)),
-                        (constraints.maxHeight / 2) - pickerStyle.pickerWidth.toPx() / 2 + lineHeightSize * 2,
+                    this.drawLine(degreeLineScaleX,
+                        middlePoint.y - pickerStyle.pickerWidth.toPx() / 2 + 4,
+                        degreeLineScaleX,
+                        middlePoint.y - pickerStyle.pickerWidth.toPx() / 2 + lineHeightSize * 2,
                         Paint().apply {
                             this.style = Paint.Style.STROKE
-                            this.strokeWidth = 6f
+                            this.strokeWidth = pickerStyle.lineStroke
                             this.color = lineColor
                             this.isAntiAlias = true
                         }
                     )
 
 
-                    if (abs(constraints.maxWidth / 2 - (constraints.maxWidth / 2 + (pickerStyle.spaceInterval * (height - pickerStyle.initialHeight.toFloat()) + targetDistantPoint)).roundToInt()) < 5) {
+                    if (abs(middlePoint.x - degreeLineScaleX.roundToInt()) < 5) {
                         selectedHeight = height
                         onHeightChange(selectedHeight)
                     }
@@ -237,8 +231,8 @@ fun PickerScreen(pickerStyle: PickerStyle, onHeightChange: (Int) -> Unit = {}) {
 
                         drawText(
                             abs(height).toString(),
-                            (constraints.maxWidth / 2 + (pickerStyle.spaceInterval * (height - pickerStyle.initialHeight.toFloat()) + targetDistantPoint)) - textBound.width() / 2,
-                            (constraints.maxHeight / 2) - pickerStyle.pickerWidth.toPx() / 2 + lineHeightSize * 2 + textBound.height() * 2 + pickerStyle.numberPadding,
+                            (degreeLineScaleX) - textBound.width() / 2,
+                            middlePoint.y - pickerStyle.pickerWidth.toPx() / 2 + lineHeightSize * 2 + textBound.height() * 2 + pickerStyle.numberPadding,
                             Paint().apply {
                                 this.textSize = 20.sp.toPx()
                                 this.textAlign = Paint.Align.CENTER

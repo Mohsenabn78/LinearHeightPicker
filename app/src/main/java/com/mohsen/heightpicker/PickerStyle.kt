@@ -18,5 +18,6 @@ data class PickerStyle(
     var tenTypeLineHeight:Int=50,
     var fiveTypeLineHeight:Int=38,
     var spaceInterval:Int=36,
-    var numberPadding:Int=28
+    var numberPadding:Int=28,
+    var lineStroke:Float=6f
 )
