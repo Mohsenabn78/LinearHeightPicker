@@ -1,1 +1,1 @@
-<img src="https://github.com/Mohsenabn78/LinearHeightPicker/blob/main/Res/ezgif.com-gif-maker.gif" width="300" height="600" />
+<img src="https://media.giphy.com/media/vFKqnCdLPNOKc/giphy.gif" width="300" height="300" />
