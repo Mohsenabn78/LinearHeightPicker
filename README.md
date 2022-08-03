@@ -5,4 +5,4 @@ a simple height picker made by cnavas and jetpack compose
 
 ## Screenshots
 
-<img src="https://github.com/Mohsenabn78/LinearHeightPicker/blob/main/resource/lhp.gif" width="200" height="300" />
+![Alt Text](https://github.com/Mohsenabn78/LinearHeightPicker/blob/main/resource/anim.gif)
